@@ -9,7 +9,7 @@ import tensorflow as tf
 MODEL_DIR = os.path.join(os.path.dirname(__file__), 'model.h5')
 reconstructed_model = tf.keras.models.load_model(MODEL_DIR)
 
-data_test = os.path.join(os.path.dirname(__file__), 'data\test.csv')
+data_test = os.path.join(os.path.dirname(__file__), 'data/test.csv')
 csv_downloaded = pd.read_csv(data_test)
 
 # preprocessing des inputs
