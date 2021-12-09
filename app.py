@@ -12,13 +12,12 @@ from math import *
 from PIL import Image
 
 # load model et data
-MODEL_DIR = os.path.join(os.path.dirname(""), 'model.h5')
 model = load_model('model.h5')
 data_test = pd.read_csv("data/test.csv")
 
 # header
 
-header_img = Image.open(r"\img\title.jpg")
+header_img = Image.open(r"img\title.jpg")
 st.image(header_img)
 
 st.markdown("Bienvenue sur notre app web de reconnaissance de chiffres pour data scientist \o/")
