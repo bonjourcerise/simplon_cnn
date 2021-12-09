@@ -1,43 +1,40 @@
-
-import pandas as pd
-import matplotlib as plt
 import os
-import math
-import numpy as np
-import cv2
-from tensorflow.keras.models import load_model
 import streamlit as st
-from streamlit_drawable_canvas import st_canvas
-from math import *
 from PIL import Image
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import tensorflow as tf
 
-# load model et data
-model = load_model('model.h5')
-data_test = pd.read_csv("data/test.csv")
+MODEL_DIR = os.path.join(os.path.dirname(__file__), 'model.h5')
+reconstructed_model = tf.keras.models.load_model(MODEL_DIR)
 
-# header
+data_test = os.path.join(os.path.dirname(__file__), 'data\test.csv')
+csv_downloaded = pd.read_csv(data_test)
 
-header_img = Image.open(r"img\title.jpg")
-st.image(header_img)
+# preprocessing des inputs
+def preprocess(input):
+    input_preprocess = input / 255
+    input_preprocess = np.array(input).reshape((-1, 28, 28, 1))
+    return input_preprocess
 
-st.markdown("Bienvenue sur notre app web de reconnaissance de chiffres pour data scientist \o/")
+# afficher l'image en input
+def see_img(input):
+    image = np.array(input).reshape([28,28])
+    fig, ax = plt.subplots()
+    ax.imshow(image, cmap=plt.get_cmap('gray'))
+    st.pyplot(fig)
 
-#mode = st.checkbox("Draw (or Delete)?", True)
-canvas_result = st_canvas(
-    fill_color='#000000',
-    stroke_width=10,
-    stroke_color='#FFFFFF',
-    background_color='#000000',
-    width=1000,
-    height=150,
-    drawing_mode="freedraw",
-    key='canvas')
+def my_prediction():
+    # choisir une ligne au hasard dans le dataframe test
+    my_input = csv_downloaded.sample(n=1)
 
-if canvas_result.image_data is not None:
-    img = cv2.resize(canvas_result.image_data.astype('uint8'), (28, 28))
-    rescaled = cv2.resize(img, (200, 200), interpolation=cv2.INTER_NEAREST)
+    # afficher l'image en input
+    see_img(my_input)
 
-if st.button('Envoi VOYANCE au 8 12 12'):
-    test_x = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    val = model.predict(test_x.reshape(1, 28, 28, 1))
-    st.write(f'Notre prédiction: {np.argmax(val[0])}')
+    # afficher la sortie cad le numero predit : print(argmax)
+    my_predict = np.argmax(reconstructed_model.predict(preprocess(my_input)), axis=1)
+    return str(my_predict)[1]
+
+if st.button('Prédis moi un chiffre'):
+    st.write("Je vois un "+my_prediction())
