@@ -1,40 +1,57 @@
+# import
 import os
-import streamlit as st
 from PIL import Image
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
+import streamlit as st
 
-MODEL_DIR = os.path.join(os.path.dirname(__file__), 'model.h5')
-reconstructed_model = tf.keras.models.load_model(MODEL_DIR)
 
-data_test = os.path.join(os.path.dirname(__file__), 'data/test.csv')
-csv_downloaded = pd.read_csv(data_test)
+# load model and data
+model = tf.keras.models.load_model('model.h5')
+data = pd.read_csv("data/test.csv")
 
-# preprocessing des inputs
-def preprocess(input):
-    input_preprocess = input / 255
-    input_preprocess = np.array(input).reshape((-1, 28, 28, 1))
-    return input_preprocess
+# reshape input
+def reshape(input):
+    reshape_input = input / 255
+    reshape_input = np.array(input).reshape((-1, 28, 28, 1))
+    return reshape_input
 
-# afficher l'image en input
-def see_img(input):
-    image = np.array(input).reshape([28,28])
+# view img
+def view_img(input):
+    img = np.array(input).reshape([28,28])
     fig, ax = plt.subplots()
-    ax.imshow(image, cmap=plt.get_cmap('gray'))
+    ax.imshow(img, cmap=plt.get_cmap('gray'))
     st.pyplot(fig)
 
-def my_prediction():
-    # choisir une ligne au hasard dans le dataframe test
-    my_input = csv_downloaded.sample(n=1)
+# prediction
+def pred():
+    mysample = data.sample(n=1)
+    view_img(mysample)
+    prediction = np.argmax(model.predict(reshape(mysample)), axis=1)
+    return str(prediction)[1]
 
-    # afficher l'image en input
-    see_img(my_input)
+# sidebar
+st.sidebar.markdown("### App CNN / MNIST")
+st.sidebar.markdown("Bienvenue sur mon app web de reconnaissance de chiffres pour data scientist \o/")
 
-    # afficher la sortie cad le numero predit : print(argmax)
-    my_predict = np.argmax(reconstructed_model.predict(preprocess(my_input)), axis=1)
-    return str(my_predict)[1]
+# header
+header_img = Image.open(r"img\title.jpg")
+st.image(header_img)
 
-if st.button('Prédis moi un chiffre'):
-    st.write("Je vois un "+my_prediction())
+# content
+st.markdown('#')
+col1, col2 = st.columns(2)
+
+with col1:
+    st.write("**Prédiction** : " + pred())
+
+with col2:
+    value = st.selectbox("Est-ce que la prédiction est ok ?", ["Oui, ce modèle est incroyable", "Non, ce modèle est nul"])
+
+    if st.button("Valider la réponse"):
+        if value == "Oui, ce modèle est incroyable":
+            st.write("Merci, je sais")
+        elif value != "Non, ce modèle est nul":
+            st.write("Alors recommence")
