@@ -1,6 +1,5 @@
 # import
 import os
-from PIL import Image
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -35,10 +34,6 @@ def pred():
 # sidebar
 st.sidebar.markdown("### App CNN / MNIST")
 st.sidebar.markdown("Bienvenue sur mon app web de reconnaissance de chiffres pour data scientist \o/")
-
-# header
-header_img = Image.open(r"img\title.jpg")
-st.image(header_img)
 
 # content
 st.markdown('#')
